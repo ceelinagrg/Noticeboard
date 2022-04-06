@@ -8,6 +8,7 @@ class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
     image = models.ImageField(upload_to="images/", null=True, blank=True)
+    owner = models.ForeignKey('auth.User', related_name='connect_app', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
@@ -21,4 +22,4 @@ class Comment(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return 'Comment {} by {}'.format(self.body, self.name)
+        return 'Comment {} by {}'.format(self.body, self.commented_by)

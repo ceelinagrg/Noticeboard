@@ -33,11 +33,24 @@ def create(self, validated_data):
     return user
 
 class PostSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+    author = serializers.StringRelatedField()
+
     class Meta:
         model = Post
-        fields = ('id', 'author', 'title', 'content', 'image')
+        fields = ('id', 'author', 'title', 'content', 'image', 'owner')
 
 class CommentSerializer(serializers.ModelSerializer):
+    post = serializers.StringRelatedField()
+
     class Meta:
         model = Comment
-        fields = ['id', 'post', 'commented_by', 'body', 'created_on']
+        fields = ('id', 'post', 'commented_by', 'body', 'created_on')
+
+class UserSerializer(serializers.ModelSerializer):
+    connect_app = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Post.objects.all())
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'connect_app')

@@ -2,10 +2,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
-from serializer import CommentSerializer, PostSerializer, RegistrationSerializer
-from rest_framework import serializers, generics, status
+from connect_app.serializers import CommentSerializer, PostSerializer, RegistrationSerializer, UserSerializer
+from rest_framework import serializers, generics, status, permissions
 from rest_framework.authtoken.models import Token
 from .models import *
+from .permissions import IsOwnerOrReadOnly 
 
 
 class UserView(APIView):
@@ -56,18 +57,34 @@ class RegistrationView(APIView):
 class PostList(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly,)
+
 
 class CommentList(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
 
+
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UserDetail(generics.RetrieveAPIView): 
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
 
 
 

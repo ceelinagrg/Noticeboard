@@ -6,7 +6,7 @@ from connect_app.serializers import CommentSerializer, PostSerializer, Registrat
 from rest_framework import serializers, generics, status, permissions
 from rest_framework.authtoken.models import Token
 from .models import *
-from .permissions import IsOwnerOrReadOnly 
+from .permissions import IsOwnerOrReadOnly
 
 
 class UserView(APIView):
@@ -27,7 +27,7 @@ class RegistrationView(APIView):
             else:
                 try:
                     Token.objects.get(user_id=user.id)
-                except Token.DoesNotExist:
+                except Token.DoesNotExist: 
                     Token.objects.create(user=user)
 
         if registration_class.is_valid():
@@ -57,7 +57,7 @@ class RegistrationView(APIView):
 class PostList(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly,)
     
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -76,6 +76,8 @@ class CommentList(generics.ListCreateAPIView):
 class CommentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,IsOwnerOrReadOnly,)
+    
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
